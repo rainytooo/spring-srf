@@ -1,0 +1,41 @@
+# common files
+*.log
+*.lock
+*.swp
+
+# Java class files
+*.class
+*.jar
+*.war
+*.ear
+
+#Gradle
+.gradletasknamecache
+.gradle/
+gradle
+gradlew
+gradlew.bat
+build/
+bin/
+out/
+
+# Eclipse
+.classpath
+.project
+.settings/
+
+# Intellij
+.idea/
+*.iml
+*.iws
+
+# Mac
+.DS_Store
+
+# Maven
+log/
+target/
+
+
+# database file
+# src/main/resources/spring/data-access.properties
