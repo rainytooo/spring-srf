@@ -12,6 +12,7 @@ import org.springframework.util.MultiValueMap;
 
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
+import static org.junit.Assert.*;
 
 public class QuerySetTest {
 
@@ -21,17 +22,41 @@ public class QuerySetTest {
 
     private MultiValueMap<String, String[]> demoParams;
 
+    private User demoUser = new User();
+
 
     @Before
     public void before() throws Exception {
         logger.debug("QuerySetTest start");
-        LinkedHashMap<String, LinkedList<String>> hmap = new LinkedHashMap<String, LinkedList<String>>();
-        LinkedList<String> key1list = new LinkedList<>();
-        String v1 = "value1";
-        key1list.add(v1);
-        hmap.put("name", key1list);
-
+        LinkedHashMap<String, LinkedList<String>> hmap = new LinkedHashMap<>();
+        // add name value
+        LinkedList<String> nameList = new LinkedList<>();
+        String nameValue = "foo";
+        nameList.add(nameValue);
+        hmap.put("name", nameList);
+        // add description value
+        LinkedList<String> descList = new LinkedList<>();
+        String descValue = "foo bar";
+        descList.add(descValue);
+        hmap.put("description", descList);
+        // add status value
+        LinkedList<String> statusList = new LinkedList<>();
+        String statusValue = "1";
+        statusList.add(statusValue);
+        hmap.put("status", statusList);
         demoParams = new LinkedMultiValueMap(hmap);
+        // add page value
+        LinkedList<String> pageList = new LinkedList<>();
+        String pageValue = "1";
+        pageList.add(pageValue);
+        hmap.put("page", pageList);
+        demoParams = new LinkedMultiValueMap(hmap);
+
+        this.demoUser.setName(nameValue);
+        this.demoUser.setStatus(Integer.parseInt(statusValue));
+        this.demoUser.setDescription(descValue);
+
+
     }
 
 
@@ -43,5 +68,6 @@ public class QuerySetTest {
     @Test
     public void indexWithLogin() throws Exception {
         qs = new QuerySet(this.demoParams, User.class);
+        assertEquals(this.demoUser, qs.getModelObject());
     }
 }

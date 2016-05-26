@@ -3,8 +3,11 @@ package com.xiaoma.rest.framework.query;
 import org.springframework.util.MultiValueMap;
 
 import java.lang.reflect.Field;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.google.common.base.CaseFormat.LOWER_CAMEL;
 import static com.google.common.base.CaseFormat.LOWER_UNDERSCORE;
@@ -38,9 +41,8 @@ public class QuerySet {
      * 重新拼装参数 设置对象参数和额外参数
      * 分页参数
      * 查询参数 设置为对象属性
-     *
      */
-    private void initParams(){
+    private void initParams() {
         try {
             this.queryObject = modelClass.newInstance();
         } catch (InstantiationException e) {
@@ -49,8 +51,24 @@ public class QuerySet {
             e.printStackTrace();
         }
         // TODO: 把分页参数拿出来
-
+        List<String[]> list = getPage();
         //MultiValueMap<String, String[]> originParamsCopy = new LinkedMultiValueMap<String, LinkedList<String>>(this.originParams);
+        resetModelAttribute();
+    }
+
+    /**
+     * 用参数设置model对象的属性
+     */
+    private void resetModelAttribute() {
+        // 优化方法,从对象去查找
+        Field[] keyFields = modelClass.getDeclaredFields();
+
+        final Stream<Field> fieldStream = Arrays.stream(keyFields);
+        List<Field> stringFields = fieldStream
+                .filter(field -> String.class.isAssignableFrom(field.getType()))
+                .collect(Collectors.toList());
+
+
         for (Map.Entry<String, List<String[]>> entry : this.originParams.entrySet()) {
             String name = entry.getKey();
             // 下划线转驼峰
@@ -59,15 +77,33 @@ public class QuerySet {
                 Field keyField = modelClass.getDeclaredField(camelName);
                 keyField.setAccessible(true);
                 // 属性的类
-                Class<?> attr_class =  keyField.getType();
-                if (attr_class.equals(String.class)){
-                    System.out.println("asdasdasd");
+                Class<?> attr_class = keyField.getType();
+                // 强制类型转化
+                if (keyField.getType().equals(String.class)) {
+                    String stringValue = String.valueOf(attr_class.cast(entry.getValue().get(0)));
+                    keyField.set(queryObject, stringValue);
+                } else if (keyField.getType().equals(Integer.class)) {
+                    Integer integerValue = Integer.valueOf(entry.getValue().get(0)[0]);
+                    keyField.set(queryObject, integerValue);
+                } else {
+                    Object attrTypeObj = attr_class.cast(entry.getValue().get(0));
+                    keyField.set(queryObject, attrTypeObj);
                 }
-                //keyField.set(queryObject, entry.getValue().g);
 
             } catch (NoSuchFieldException e) {
                 e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
             }
         }
+    }
+
+    // 获取分页参数
+    private List<String[]> getPage() {
+        return this.originParams.get("page");
+    }
+
+    public Object getModelObject() {
+        return this.queryObject;
     }
 }
