@@ -63,10 +63,39 @@ public class QuerySet {
         // 优化方法,从对象去查找
         Field[] keyFields = modelClass.getDeclaredFields();
 
-        final Stream<Field> fieldStream = Arrays.stream(keyFields);
-        List<Field> stringFields = fieldStream
+
+        // final Stream<Field> fieldStream = Arrays.stream(keyFields);
+
+        // String 类型字段
+        List<Field> stringFields = Arrays.stream(keyFields)
                 .filter(field -> String.class.isAssignableFrom(field.getType()))
                 .collect(Collectors.toList());
+
+        // Boolean 类型字段
+        List<Field> booleanFields = Arrays.stream(keyFields)
+                .filter(field -> Boolean.class.isAssignableFrom(field.getType()) | field.getType() == boolean.class)
+                .collect(Collectors.toList());
+
+        // Int 类型字段
+        List<Field> intFields = Arrays.stream(keyFields)
+                .filter(field -> Integer.class.isAssignableFrom(field.getType()) | field.getType() == int.class)
+                .collect(Collectors.toList());
+
+        // Long 类型字段
+        List<Field> longFields = Arrays.stream(keyFields)
+                .filter(field -> Long.class.isAssignableFrom(field.getType()) | field.getType() == long.class)
+                .collect(Collectors.toList());
+
+        // Float 类型字段
+        List<Field> floatFields = Arrays.stream(keyFields)
+                .filter(field -> Float.class.isAssignableFrom(field.getType()) | field.getType() == float.class)
+                .collect(Collectors.toList());
+
+        // Double类型字段
+        List<Field> doubleFields = Arrays.stream(keyFields)
+                .filter(field -> Double.class.isAssignableFrom(field.getType()) | field.getType() == double.class)
+                .collect(Collectors.toList());
+
 
 
         for (Map.Entry<String, List<String[]>> entry : this.originParams.entrySet()) {

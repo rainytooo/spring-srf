@@ -44,17 +44,32 @@ public class QuerySetTest {
         String statusValue = "1";
         statusList.add(statusValue);
         hmap.put("status", statusList);
-        demoParams = new LinkedMultiValueMap(hmap);
+
         // add page value
         LinkedList<String> pageList = new LinkedList<>();
         String pageValue = "1";
         pageList.add(pageValue);
         hmap.put("page", pageList);
+
+        // add page value
+        LinkedList<String> heightList = new LinkedList<>();
+        String heightValue = "1.74";
+        pageList.add(heightValue);
+        hmap.put("height", heightList);
+
+        // add page value
+        LinkedList<String> distanceList = new LinkedList<>();
+        String distanceValue = "181729371273123";
+        pageList.add(distanceValue);
+        hmap.put("distance", distanceList);
         demoParams = new LinkedMultiValueMap(hmap);
+
 
         this.demoUser.setName(nameValue);
         this.demoUser.setStatus(Integer.parseInt(statusValue));
         this.demoUser.setDescription(descValue);
+        this.demoUser.setHeight(Float.parseFloat(heightValue));
+        this.demoUser.setDistance(Long.parseLong(distanceValue));
 
 
     }

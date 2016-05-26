@@ -18,6 +18,14 @@ public class User {
 
     private Integer status;
 
+    private long distance;
+
+    private float height;
+
+    private double deposits;
+
+    private boolean isMale;
+
     private Date createDate;
 
     private Date updateDate;
@@ -52,6 +60,38 @@ public class User {
 
     public void setStatus(Integer status) {
         this.status = status;
+    }
+
+    public long getDistance() {
+        return distance;
+    }
+
+    public void setDistance(long distance) {
+        this.distance = distance;
+    }
+
+    public float getHeight() {
+        return height;
+    }
+
+    public void setHeight(float height) {
+        this.height = height;
+    }
+
+    public double getDeposits() {
+        return deposits;
+    }
+
+    public void setDeposits(double deposits) {
+        this.deposits = deposits;
+    }
+
+    public boolean isMale() {
+        return isMale;
+    }
+
+    public void setMale(boolean male) {
+        isMale = male;
     }
 
     public Date getCreateDate() {
