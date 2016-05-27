@@ -1,14 +1,21 @@
 group 'com.xiaoma'
-version '1.0'
+version '1.0-SNAPSHOT'
 
 apply plugin: 'java'
+apply plugin: 'idea'
+apply plugin: 'maven'
 
 
-sourceCompatibility = 1.7
-targetCompatibility = 1.7
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
 
 repositories {
-    mavenCentral()
+//    mavenCentral()
+    maven {
+        //url 'http://mirrors.ibiblio.org/pub/mirrors/maven2'
+        //url 'http://uk.maven.org/maven2'
+        url 'http://nexus.xiaoma.com/nexus/content/groups/public'
+    }
 }
 
 dependencies {
@@ -57,4 +64,23 @@ dependencies {
                 "org.mockito:mockito-core:$mockitoVersion"
 
 
+}
+
+
+//上传到nexus
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            snapshotRepository(url: 'http://nexus.xiaoma.com/nexus/content/repositories/snapshots/') {
+                authentication(userName: 'deployment', password: '1q2w3e4r')
+            }
+
+            repository(url: "http://nexus.xiaoma.com/nexus/content/repositories/releases") {
+                authentication(userName: "deployment", password: "1q2w3e4r")
+            }
+            pom.version = "$project.version"
+            pom.artifactId = "$rootProject.name"
+            pom.groupId = "$project.group"
+        }
+    }
 }

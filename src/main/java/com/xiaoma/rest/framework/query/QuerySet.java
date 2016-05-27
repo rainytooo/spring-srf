@@ -13,6 +13,8 @@ import static com.google.common.base.CaseFormat.LOWER_CAMEL;
 import static com.google.common.base.CaseFormat.LOWER_UNDERSCORE;
 
 /**
+ * QuerySet在初始化以后,具有一个分页对象,所有参数对象,模型参数对象
+ * 当一个属性有多个值的时候,
  * @author <a href="mailto:ergal@163.com">vincent.omg</a>
  * @version 1.0
  * @date 16/5/20

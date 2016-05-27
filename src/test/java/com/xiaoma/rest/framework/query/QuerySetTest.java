@@ -18,8 +18,7 @@ public class QuerySetTest {
 
     private static final Logger logger = LoggerFactory.getLogger(QuerySetTest.class);
 
-    private QuerySet qs;
-
+    // 模拟参数对象
     private MultiValueMap<String, String[]> demoParams;
 
     private User demoUser = new User();
@@ -82,7 +81,7 @@ public class QuerySetTest {
 
     @Test
     public void indexWithLogin() throws Exception {
-        qs = new QuerySet(this.demoParams, User.class);
+        QuerySet qs = new QuerySet(this.demoParams, User.class);
         assertEquals(this.demoUser, qs.getModelObject());
     }
 }
