@@ -14,9 +14,9 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import static org.junit.Assert.*;
 
-public class QuerySetTest {
+public class GenericQuerySetTest {
 
-    private static final Logger logger = LoggerFactory.getLogger(QuerySetTest.class);
+    private static final Logger logger = LoggerFactory.getLogger(GenericQuerySetTest.class);
 
     // 模拟参数对象
     private MultiValueMap<String, String[]> demoParams;
@@ -26,7 +26,7 @@ public class QuerySetTest {
 
     @Before
     public void before() throws Exception {
-        logger.debug("QuerySetTest start");
+        logger.debug("GenericQuerySetTest start");
         LinkedHashMap<String, LinkedList<String>> hmap = new LinkedHashMap<>();
         // add name value
         LinkedList<String> nameList = new LinkedList<>();
@@ -76,12 +76,12 @@ public class QuerySetTest {
 
     @After
     public void after() throws Exception {
-        logger.debug("QuerySetTest stop");
+        logger.debug("GenericQuerySetTest stop");
     }
 
     @Test
     public void indexWithLogin() throws Exception {
-        QuerySet qs = new QuerySet(this.demoParams, User.class);
+        GenericQuerySet qs = new GenericQuerySet(this.demoParams, User.class);
         assertEquals(this.demoUser, qs.getModelObject());
     }
 }
