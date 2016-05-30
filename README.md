@@ -19,4 +19,9 @@ rest framework简称ssrf,目的用于对spring mvc框架下的restful api开发�
     - 项目初始化,定义结构
 
 
+### TODO
+
+* [ ] 完成属性值转换,设置给model对象
+
+
 
