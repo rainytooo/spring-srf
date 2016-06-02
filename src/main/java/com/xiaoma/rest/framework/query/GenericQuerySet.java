@@ -64,6 +64,7 @@ public class GenericQuerySet implements QuerySet{
     /**
      * 用参数设置model对象的属性
      * 由于参数全部是小写,且有下划线符号,需要重新转化,而不使用spring自带的model对象注入
+     * 如果一个属性有多个值,则不会作为model属性去设置
      */
     private void resetModelAttribute() {
         // 优化方法,从对象去查找
@@ -84,12 +85,22 @@ public class GenericQuerySet implements QuerySet{
                     String paramValue = String.valueOf(paramList.get(0));
                     try {
                         field.setAccessible(true);
-                        field.set(this.queryObject, convertModelAttrValue(paramValue, field));
+                        Object primitiveAttr = convertPrimitiveField(paramValue, field);
+                        if(primitiveAttr != null) {
+                            field.set(this.queryObject, primitiveAttr);
+                        }else{
+                            // 如果此时还是空,尝试转成对象,设置id
+                            convertNotPrimitiveField(field, paramValue);
+                        }
+
                     } catch (IllegalAccessException e) {
+                        logger.info(field.getName() + " class set attr error!");
+                    } catch (InstantiationException e) {
+                        logger.info(field.getName() + " create instance error!");
+                    } catch (NoSuchFieldException e) {
                         e.printStackTrace();
                     }
                 }
-                logger.debug("asdasd");
             }
         }
 
@@ -128,7 +139,7 @@ public class GenericQuerySet implements QuerySet{
 
 
 
-        for (Map.Entry<String, List<String[]>> entry : this.originParams.entrySet()) {
+        /*for (Map.Entry<String, List<String[]>> entry : this.originParams.entrySet()) {
             String name = entry.getKey();
             // 下划线转驼峰
             String camelName = LOWER_UNDERSCORE.to(LOWER_CAMEL, name);
@@ -154,22 +165,42 @@ public class GenericQuerySet implements QuerySet{
             } catch (IllegalAccessException e) {
                 e.printStackTrace();
             }
+        }*/
+    }
+
+    private void convertNotPrimitiveField(Field field, String paramValue) throws IllegalAccessException, InstantiationException, NoSuchFieldException {
+        // 创建一个对象
+        Object fieldObject = field.getType().newInstance();
+        // 设置对象的id属性
+        Field fieldClassIdField = field.getType().getDeclaredField("Id");
+        if(fieldClassIdField != null){
+            fieldClassIdField.setAccessible(true);
+            fieldClassIdField.set(fieldObject, Integer.parseInt(paramValue));
+            // 将这个非基本类型的对象设置给model的对象
+            field.setAccessible(true);
+            field.set(this.queryObject, fieldObject);
         }
     }
 
     /**
-     * 参数转化
+     * 参数转化,主要是对象用
      * @param paramValue
      * @param field
      * @return
      */
-    private Object convertModelAttrValue(String paramValue, Field field) {
+    private Object convertPrimitiveField(String paramValue, Field field) {
         if(String.class.isAssignableFrom(field.getType())) {
             return paramValue;
-        }else if(Integer.class.isAssignableFrom(field.getType()) | field.getType() == int.class){
+        }else if(Integer.class.isAssignableFrom(field.getType()) || field.getType() == int.class){
             return Integer.parseInt(paramValue);
-        }else if(Long.class.isAssignableFrom(field.getType()) | field.getType() == long.class){
+        }else if(Long.class.isAssignableFrom(field.getType()) || field.getType() == long.class){
             return Long.parseLong(paramValue);
+        }else if(Double.class.isAssignableFrom(field.getType()) || field.getType() == double.class){
+            return Double.parseDouble(paramValue);
+        }else if(Float.class.isAssignableFrom(field.getType()) || field.getType() == float.class){
+            return Float.parseFloat(paramValue);
+        }else if(Short.class.isAssignableFrom(field.getType()) || field.getType() == short.class) {
+            return Short.parseShort(paramValue);
         }
         return null;
     }

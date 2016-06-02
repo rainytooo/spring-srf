@@ -1,6 +1,7 @@
 package com.xiaoma.rest.framework.query;
 
 
+import com.xiaoma.rest.framework.example.model.Role;
 import com.xiaoma.rest.framework.example.model.User;
 import org.junit.After;
 import org.junit.Before;
@@ -32,6 +33,8 @@ public class GenericQuerySetTest {
         LinkedList<String> nameList = new LinkedList<>();
         String nameValue = "foo";
         nameList.add(nameValue);
+        // 再加一个值
+        // nameList.add("bar");
         hmap.put("name", nameList);
         // add description value
         LinkedList<String> descList = new LinkedList<>();
@@ -53,22 +56,35 @@ public class GenericQuerySetTest {
         // add page value
         LinkedList<String> heightList = new LinkedList<>();
         String heightValue = "1.74";
-        pageList.add(heightValue);
+        heightList.add(heightValue);
         hmap.put("height", heightList);
 
         // add page value
         LinkedList<String> distanceList = new LinkedList<>();
         String distanceValue = "181729371273123";
-        pageList.add(distanceValue);
+        distanceList.add(distanceValue);
         hmap.put("distance", distanceList);
-        demoParams = new LinkedMultiValueMap(hmap);
 
+
+        // add Role value
+        LinkedList<String> roleList = new LinkedList<>();
+        String roleValue = "2";
+        roleList.add(roleValue);
+        hmap.put("role", roleList);
+
+        this.demoParams = new LinkedMultiValueMap(hmap);
+
+        Role role = new Role();
+        role.setId(2);
+        // role.setName("admin");
+        // role.setDescription("Administrator");
 
         this.demoUser.setName(nameValue);
         this.demoUser.setStatus(Integer.parseInt(statusValue));
         this.demoUser.setDescription(descValue);
         this.demoUser.setHeight(Float.parseFloat(heightValue));
         this.demoUser.setDistance(Long.parseLong(distanceValue));
+        this.demoUser.setRole(role);
 
 
     }
@@ -82,6 +98,15 @@ public class GenericQuerySetTest {
     @Test
     public void indexWithLogin() throws Exception {
         GenericQuerySet qs = new GenericQuerySet(this.demoParams, User.class);
-        assertEquals(this.demoUser, qs.getModelObject());
+        User queryObject = (User)qs.getModelObject();
+        // assertTrue( this.demoUser.equals(qs.getModelObject()) );
+        // assertEquals(this.demoUser, qs.getModelObject());
+        assertNotNull(queryObject);
+        assertEquals(this.demoUser.getName(), queryObject.getName());
+        assertEquals(this.demoUser.getDescription(), queryObject.getDescription());
+        assertEquals(this.demoUser.getDistance(), queryObject.getDistance());
+        assertEquals(this.demoUser.getStatus(), queryObject.getStatus());
+        assertEquals(this.demoUser.getHeight(), queryObject.getHeight(), 0.01);
+        assertEquals(this.demoUser.getRole().getId(), queryObject.getRole().getId());
     }
 }

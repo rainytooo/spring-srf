@@ -1,5 +1,7 @@
 package com.xiaoma.rest.framework.example.model;
 
+import javafx.scene.input.RotateEvent;
+
 import java.util.Date;
 
 /**
@@ -29,6 +31,8 @@ public class User {
     private Date createDate;
 
     private Date updateDate;
+
+    private Role role;
 
     public Integer getId() {
         return id;
@@ -108,5 +112,13 @@ public class User {
 
     public void setUpdateDate(Date updateDate) {
         this.updateDate = updateDate;
+    }
+
+    public Role getRole() {
+        return role;
+    }
+
+    public void setRole(Role role) {
+        this.role = role;
     }
 }
