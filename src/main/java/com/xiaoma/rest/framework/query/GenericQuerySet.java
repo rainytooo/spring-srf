@@ -5,6 +5,7 @@ import com.xiaoma.rest.framework.serializer.Serializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.MultiValueMap;
+import org.springframework.util.comparator.BooleanComparator;
 
 import java.lang.reflect.Field;
 import java.util.*;
@@ -57,8 +58,8 @@ public class GenericQuerySet implements QuerySet{
         }
         // TODO: 把分页参数拿出来
         List<String[]> list = getPage();
-        //MultiValueMap<String, String[]> originParamsCopy = new LinkedMultiValueMap<String, LinkedList<String>>(this.originParams);
         resetModelAttribute();
+
     }
 
     /**
@@ -105,6 +106,8 @@ public class GenericQuerySet implements QuerySet{
         }
 
 
+
+        /**
         // final Stream<Field> fieldStream = Arrays.stream(keyFields);
 
         // String 类型字段
@@ -136,10 +139,11 @@ public class GenericQuerySet implements QuerySet{
         List<Field> doubleFields = Arrays.stream(keyFields)
                 .filter(field -> Double.class.isAssignableFrom(field.getType()) | field.getType() == double.class)
                 .collect(Collectors.toList());
+        */
 
 
-
-        /*for (Map.Entry<String, List<String[]>> entry : this.originParams.entrySet()) {
+        /**
+        for (Map.Entry<String, List<String[]>> entry : this.originParams.entrySet()) {
             String name = entry.getKey();
             // 下划线转驼峰
             String camelName = LOWER_UNDERSCORE.to(LOWER_CAMEL, name);
@@ -165,7 +169,8 @@ public class GenericQuerySet implements QuerySet{
             } catch (IllegalAccessException e) {
                 e.printStackTrace();
             }
-        }*/
+        }
+         */
     }
 
     private void convertNotPrimitiveField(Field field, String paramValue) throws IllegalAccessException, InstantiationException, NoSuchFieldException {
@@ -201,6 +206,8 @@ public class GenericQuerySet implements QuerySet{
             return Float.parseFloat(paramValue);
         }else if(Short.class.isAssignableFrom(field.getType()) || field.getType() == short.class) {
             return Short.parseShort(paramValue);
+        }else if(Boolean.class.isAssignableFrom(field.getType()) || field.getType() == boolean.class) {
+            return Boolean.parseBoolean(paramValue);
         }
         return null;
     }

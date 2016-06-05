@@ -13,6 +13,31 @@ rest framework简称ssrf,目的用于对spring mvc框架下的restful api开发�
 * controller只需指定基本几个参数就可以得到完整的rest api接口
 * 返回对象的序列化可以简单定义属性,不同方法只需指定serializer就可以返回具有不同属性数量的序列化对象
 
+
+
+# 使用介绍
+
+### 规矩
+
+使用一下类型
+
+String, int, Integer, Long, long, float, Float, double, Double,
+
+尽量用int来表示boolean
+
+参数传递
+
+客户端全部小写, 服务端用驼峰比如
+
+```
+private boolean isMale;
+// 这个在客户端传递参数的时候用
+is_male
+```
+
+
+# 其它
+
 ### 版本说明
 
 * 2016-05-20 v1.0
@@ -22,6 +47,7 @@ rest framework简称ssrf,目的用于对spring mvc框架下的restful api开发�
 ### TODO
 
 * [X] 完成属性值转换,设置给model对象
+* [ ] Date类型
 
 
 

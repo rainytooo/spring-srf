@@ -53,13 +53,19 @@ public class GenericQuerySetTest {
         pageList.add(pageValue);
         hmap.put("page", pageList);
 
-        // add page value
+        // add height value
         LinkedList<String> heightList = new LinkedList<>();
         String heightValue = "1.74";
         heightList.add(heightValue);
         hmap.put("height", heightList);
 
-        // add page value
+        // add isMale value
+        LinkedList<String> isMaleList = new LinkedList<>();
+        String isMaleValue = "true";
+        isMaleList.add(isMaleValue);
+        hmap.put("is_male", isMaleList);
+
+        // add distance value
         LinkedList<String> distanceList = new LinkedList<>();
         String distanceValue = "181729371273123";
         distanceList.add(distanceValue);
@@ -84,6 +90,7 @@ public class GenericQuerySetTest {
         this.demoUser.setDescription(descValue);
         this.demoUser.setHeight(Float.parseFloat(heightValue));
         this.demoUser.setDistance(Long.parseLong(distanceValue));
+        this.demoUser.setMale(true);
         this.demoUser.setRole(role);
 
 
@@ -107,6 +114,7 @@ public class GenericQuerySetTest {
         assertEquals(this.demoUser.getDistance(), queryObject.getDistance());
         assertEquals(this.demoUser.getStatus(), queryObject.getStatus());
         assertEquals(this.demoUser.getHeight(), queryObject.getHeight(), 0.01);
+        assertEquals(this.demoUser.isMale(), queryObject.isMale());
         assertEquals(this.demoUser.getRole().getId(), queryObject.getRole().getId());
     }
 }
