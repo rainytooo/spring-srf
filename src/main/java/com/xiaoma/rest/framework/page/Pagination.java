@@ -12,17 +12,23 @@ public class Pagination {
 
     private final static String PAGE_SIZE_PARAM_NAME = "page_size";
 
+    private final static String PAGE_PARAM_NAME = "page";
+
     private final static int MAX_PAGE_SIZE = 1000;
 
-    public static int getPageSize(){
+    public int getPageSize(){
         return PAGE_SIZE;
     }
 
-    public static int getMaxPageSize(){
+    public int getMaxPageSize(){
         return MAX_PAGE_SIZE;
     }
 
-    public static String getPageSizeParamName(){
+    public String getPageSizeParamName(){
         return PAGE_SIZE_PARAM_NAME;
+    }
+
+    public String getPageParamName(){
+        return PAGE_PARAM_NAME;
     }
 }

@@ -9,7 +9,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
@@ -162,5 +161,30 @@ public class GenericQuerySetTest {
         assertEquals(qpCreateDate.getParams().get(0), createDateValue);
 
         logger.debug("restParam test end");
+    }
+
+    @Test
+    public void pageSizeAndPage(){
+        logger.debug("pageSize test start");
+        LinkedHashMap<String, LinkedList<String>> hmap = new LinkedHashMap<>();
+
+
+        LinkedList<String> pageSizeList = new LinkedList<>();
+        String pageSizeValue = "100";
+        pageSizeList.add(pageSizeValue);
+        hmap.put("page_size", pageSizeList);
+
+        LinkedList<String> pageList = new LinkedList<>();
+        String pageValue = "2";
+        pageList.add(pageValue);
+        hmap.put("page", pageList);
+
+
+        // 查询参数
+        MultiValueMap<String, String[]> params = new LinkedMultiValueMap(hmap);
+        GenericQuerySet qs = new GenericQuerySet(params, User.class);
+
+
+        logger.debug("pageSize test end");
     }
 }

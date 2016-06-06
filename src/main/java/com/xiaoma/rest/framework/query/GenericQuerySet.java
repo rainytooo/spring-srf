@@ -80,8 +80,9 @@ public class GenericQuerySet implements QuerySet {
      * 把所有参数做一次包装
      */
     private void resetParam() {
+        initPageParams();
+
         queryParamWithOp = new HashMap<>();
-        this.originParams.get()
 
         // 循环所有参数
         for (Map.Entry<String, List<String[]>> entry : this.originParams.entrySet()) {
@@ -92,6 +93,25 @@ public class GenericQuerySet implements QuerySet {
             Object paramValueObj = entry.getValue();
             queryParameter.setParams((LinkedList<String>)paramValueObj);
             queryParamWithOp.put(queryParameter.getParamName(), queryParameter);
+        }
+    }
+
+    /**
+     * 初始化分页的参数值
+     */
+    private void initPageParams() {
+        Object pageSizeParamObj = this.originParams.get(this.pagination.getPageSizeParamName());
+        if(pageSizeParamObj != null){
+            LinkedList<String> pageSizeValueList = (LinkedList<String>)pageSizeParamObj;
+            int pageSize = Integer.parseInt(pageSizeValueList.get(0));
+            this.originParams.remove(this.pagination.getPageSizeParamName());
+        }
+
+        Object pageParamObj = this.originParams.get(this.pagination.getPageParamName());
+        if(pageParamObj != null){
+            LinkedList<String> pageValueList = (LinkedList<String>) pageParamObj;
+            int pageNum = Integer.parseInt(pageValueList.get(0));
+            this.originParams.remove(this.pagination.getPageParamName());
         }
     }
 
