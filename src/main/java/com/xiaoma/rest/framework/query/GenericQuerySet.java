@@ -28,6 +28,9 @@ public class GenericQuerySet implements QuerySet {
     // 原始参数对象
     private final MultiValueMap<String, String[]> originParams;
 
+    // 分页标准对象
+    private Pagination pagination;
+
     // Model对象实体,如果用orm和简单查询,这个属性可以直接用来orm查询
     private Object queryObject;
 
@@ -37,9 +40,19 @@ public class GenericQuerySet implements QuerySet {
     // 所有查询参数经过处理放在这里
     private HashMap<String, QueryParameter> queryParamWithOp;
 
+    public GenericQuerySet(MultiValueMap<String, String[]> originParams,
+                           Class modelClass,
+                           Pagination pagination) {
+        this.originParams = originParams;
+        this.modelClass = modelClass;
+        this.pagination = pagination;
+        this.initParams();
+    }
+
     public GenericQuerySet(MultiValueMap<String, String[]> originParams, Class modelClass) {
         this.originParams = originParams;
         this.modelClass = modelClass;
+        this.pagination = new Pagination();
         this.initParams();
     }
 
@@ -68,6 +81,8 @@ public class GenericQuerySet implements QuerySet {
      */
     private void resetParam() {
         queryParamWithOp = new HashMap<>();
+        this.originParams.get()
+
         // 循环所有参数
         for (Map.Entry<String, List<String[]>> entry : this.originParams.entrySet()) {
             // 取出参数名
