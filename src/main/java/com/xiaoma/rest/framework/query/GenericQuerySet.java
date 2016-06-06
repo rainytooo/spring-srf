@@ -1,6 +1,6 @@
 package com.xiaoma.rest.framework.query;
 
-import com.xiaoma.rest.framework.page.Pagination;
+import com.xiaoma.rest.framework.page.PaginationParameter;
 import com.xiaoma.rest.framework.serializer.Serializer;
 import org.joda.time.LocalDateTime;
 import org.slf4j.Logger;
@@ -29,7 +29,7 @@ public class GenericQuerySet implements QuerySet {
     private final MultiValueMap<String, String[]> originParams;
 
     // 分页标准对象
-    private Pagination pagination;
+    private PaginationParameter paginationParameter;
 
     // Model对象实体,如果用orm和简单查询,这个属性可以直接用来orm查询
     private Object queryObject;
@@ -42,17 +42,17 @@ public class GenericQuerySet implements QuerySet {
 
     public GenericQuerySet(MultiValueMap<String, String[]> originParams,
                            Class modelClass,
-                           Pagination pagination) {
+                           PaginationParameter paginationParameter) {
         this.originParams = originParams;
         this.modelClass = modelClass;
-        this.pagination = pagination;
+        this.paginationParameter = paginationParameter;
         this.initParams();
     }
 
     public GenericQuerySet(MultiValueMap<String, String[]> originParams, Class modelClass) {
         this.originParams = originParams;
         this.modelClass = modelClass;
-        this.pagination = new Pagination();
+        this.paginationParameter = new PaginationParameter();
         this.initParams();
     }
 
@@ -100,18 +100,18 @@ public class GenericQuerySet implements QuerySet {
      * 初始化分页的参数值
      */
     private void initPageParams() {
-        Object pageSizeParamObj = this.originParams.get(this.pagination.getPageSizeParamName());
+        Object pageSizeParamObj = this.originParams.get(this.paginationParameter.getPageSizeParamName());
         if(pageSizeParamObj != null){
             LinkedList<String> pageSizeValueList = (LinkedList<String>)pageSizeParamObj;
             int pageSize = Integer.parseInt(pageSizeValueList.get(0));
-            this.originParams.remove(this.pagination.getPageSizeParamName());
+            this.originParams.remove(this.paginationParameter.getPageSizeParamName());
         }
 
-        Object pageParamObj = this.originParams.get(this.pagination.getPageParamName());
+        Object pageParamObj = this.originParams.get(this.paginationParameter.getPageParamName());
         if(pageParamObj != null){
             LinkedList<String> pageValueList = (LinkedList<String>) pageParamObj;
             int pageNum = Integer.parseInt(pageValueList.get(0));
-            this.originParams.remove(this.pagination.getPageParamName());
+            this.originParams.remove(this.paginationParameter.getPageParamName());
         }
     }
 
@@ -323,8 +323,7 @@ public class GenericQuerySet implements QuerySet {
     }
 
 
-    @Override
-    public Pagination getPagination() {
+    public PaginationParameter getPaginationParameter() {
         return null;
     }
 

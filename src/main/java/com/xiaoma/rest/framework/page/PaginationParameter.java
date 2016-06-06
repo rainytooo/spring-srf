@@ -7,7 +7,7 @@ package com.xiaoma.rest.framework.page;
  * @date 16/5/30
  * @since 1.0
  */
-public class Pagination {
+public class PaginationParameter {
     private final static int PAGE_SIZE = 20;
 
     private final static String PAGE_SIZE_PARAM_NAME = "page_size";
