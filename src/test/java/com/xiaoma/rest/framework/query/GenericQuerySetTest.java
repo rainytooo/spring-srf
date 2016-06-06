@@ -114,7 +114,7 @@ public class GenericQuerySetTest {
     @Test
     public void resetModelAttribute() throws Exception {
         GenericQuerySet qs = new GenericQuerySet(this.demoParams, User.class);
-        User queryObject = (User)qs.getModelObject();
+        User queryObject = (User)qs.getQueryModel();
         // assertTrue( this.demoUser.equals(qs.getModelObject()) );
         // assertEquals(this.demoUser, qs.getModelObject());
         assertNotNull(queryObject);
@@ -138,8 +138,13 @@ public class GenericQuerySetTest {
         LinkedList<String> nameList = new LinkedList<>();
         String nameValue = "foo";
         nameList.add(nameValue);
-        // 再加一个值
         hmap.put("name_stw", nameList);
+
+        // add createDate value
+        LinkedList<String> createDateList = new LinkedList<>();
+        String createDateValue = "1465180995";
+        createDateList.add(createDateValue);
+        hmap.put("create_date_gt", createDateList);
 
 
         // 查询参数
@@ -150,6 +155,11 @@ public class GenericQuerySetTest {
         assertEquals(qp.getOperation(), QueryOperation.STARTWITH);
         assertEquals(qp.getParams().size(), 1);
         assertEquals(qp.getParams().get(0), nameValue);
+
+        QueryParameter qpCreateDate = qs.getQueryParameter("createDate");
+        assertEquals(qpCreateDate.getOperation(), QueryOperation.GT);
+        assertEquals(qpCreateDate.getParams().size(), 1);
+        assertEquals(qpCreateDate.getParams().get(0), createDateValue);
 
         logger.debug("restParam test end");
     }

@@ -287,9 +287,6 @@ public class GenericQuerySet implements QuerySet {
         return this.originParams.get("page");
     }
 
-    public Object getModelObject() {
-        return this.queryObject;
-    }
 
     @Override
     public Pagination getPagination() {
@@ -308,7 +305,7 @@ public class GenericQuerySet implements QuerySet {
 
     @Override
     public Object getQueryModel() {
-        return null;
+        return this.queryObject;
     }
 
     @Override
