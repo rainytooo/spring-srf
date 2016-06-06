@@ -26,6 +26,12 @@ public interface QuerySet {
      */
     QueryParameter getQueryParameter(String paramName);
 
+    /**
+     * 获取所有的查询
+     * @return
+     */
+    HashMap<String, QueryParameter> getAllQueryParameter();
+
 
     /**
      * 拿出查询的对象,设置完参数

@@ -9,6 +9,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
@@ -125,5 +126,31 @@ public class GenericQuerySetTest {
         assertEquals(this.demoUser.isMale(), queryObject.isMale());
         assertEquals(this.demoUser.getCreateDate(), queryObject.getCreateDate());
         assertEquals(this.demoUser.getRole().getId(), queryObject.getRole().getId());
+    }
+
+
+    @Test
+    public void restParam(){
+        logger.debug("restParam test start");
+        LinkedHashMap<String, LinkedList<String>> hmap = new LinkedHashMap<>();
+
+
+        LinkedList<String> nameList = new LinkedList<>();
+        String nameValue = "foo";
+        nameList.add(nameValue);
+        // 再加一个值
+        hmap.put("name_stw", nameList);
+
+
+        // 查询参数
+        MultiValueMap<String, String[]> params = new LinkedMultiValueMap(hmap);
+        GenericQuerySet qs = new GenericQuerySet(params, User.class);
+
+        QueryParameter qp = qs.getQueryParameter("name");
+        assertEquals(qp.getOperation(), QueryOperation.STARTWITH);
+        assertEquals(qp.getParams().size(), 1);
+        assertEquals(qp.getParams().get(0), nameValue);
+
+        logger.debug("restParam test end");
     }
 }

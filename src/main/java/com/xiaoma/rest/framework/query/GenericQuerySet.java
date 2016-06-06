@@ -2,28 +2,26 @@ package com.xiaoma.rest.framework.query;
 
 import com.xiaoma.rest.framework.page.Pagination;
 import com.xiaoma.rest.framework.serializer.Serializer;
-import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.MultiValueMap;
-import org.springframework.util.comparator.BooleanComparator;
 
 import java.lang.reflect.Field;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static com.google.common.base.CaseFormat.LOWER_CAMEL;
 import static com.google.common.base.CaseFormat.LOWER_UNDERSCORE;
 
 /**
  * QuerySet的一般实现
+ *
  * @author <a href="mailto:ergal@163.com">vincent.omg</a>
  * @version 1.0
  * @date 16/5/20
  * @since 1.0
  */
-public class GenericQuerySet implements QuerySet{
+public class GenericQuerySet implements QuerySet {
 
     private final Logger logger = LoggerFactory.getLogger(GenericQuerySet.class);
 
@@ -36,8 +34,8 @@ public class GenericQuerySet implements QuerySet{
     // model的类
     private Class modelClass;
 
-    // 非对象属性参数放这里
-    private MultiValueMap<String, String[]> extraParams;
+    // 所有查询参数经过处理放在这里
+    private HashMap<String, QueryParameter> queryParamWithOp;
 
     public GenericQuerySet(MultiValueMap<String, String[]> originParams, Class modelClass) {
         this.originParams = originParams;
@@ -61,37 +59,103 @@ public class GenericQuerySet implements QuerySet{
         // TODO: 把分页参数拿出来
         List<String[]> list = getPage();
         resetModelAttribute();
+        resetParam();
+    }
 
+
+    /**
+     * 把所有参数做一次包装
+     */
+    private void resetParam() {
+        queryParamWithOp = new HashMap<>();
+        // 循环所有参数
+        for (Map.Entry<String, List<String[]>> entry : this.originParams.entrySet()) {
+            // 取出参数名
+            String paramNameOrigin = entry.getKey();
+            // 转化名称和操作符
+            QueryParameter queryParameter = this.parseQueryNameAndOperation(paramNameOrigin);
+            Object paramValueObj = entry.getValue();
+            queryParameter.setParams((LinkedList<String>)paramValueObj);
+            queryParamWithOp.put(queryParameter.getParamName(), queryParameter);
+        }
+    }
+
+    /**
+     *  将参数名做一次重组装
+     * @param paramNameOrigin
+     * @return
+     */
+    private QueryParameter parseQueryNameAndOperation(String paramNameOrigin) {
+        QueryParameter queryParameter = new QueryParameter();
+        // 如果包含下划线,如果下划线的后面属于操作符,那么就截断
+        if(paramNameOrigin.indexOf('_') != -1){
+            // 取出最后参数
+            String afterLastUnderline = paramNameOrigin.substring(paramNameOrigin.lastIndexOf('_') + 1, paramNameOrigin.length());
+            QueryOperation operation = this.getOpreation(afterLastUnderline);
+            String queryParamName = paramNameOrigin;
+            if(operation != QueryOperation.EQ) {
+                // 有附加查询操作符,去掉最后一个操作符和下划线
+                queryParamName = paramNameOrigin.substring(0, paramNameOrigin.lastIndexOf('_'));
+            }
+            queryParameter.setParamName(LOWER_UNDERSCORE.to(LOWER_CAMEL, queryParamName));
+            queryParameter.setOperation(operation);
+        }else{
+            queryParameter.setParamName(LOWER_UNDERSCORE.to(LOWER_CAMEL, paramNameOrigin));
+            queryParameter.setOperation(QueryOperation.EQ);
+        }
+        return queryParameter;
+    }
+
+    private QueryOperation getOpreation(String opName){
+        switch (opName){
+            case "neq":
+                return QueryOperation.NEQ;
+            case "gt":
+                return QueryOperation.GT;
+            case "gte":
+                return QueryOperation.GTE;
+            case "lt":
+                return QueryOperation.LT;
+            case "lte":
+                return QueryOperation.LTE;
+            case "stw":
+                return QueryOperation.STARTWITH;
+            case "edw":
+                return QueryOperation.ENDWITH;
+            default:
+                return QueryOperation.EQ;
+        }
     }
 
     /**
      * 用参数设置model对象的属性
      * 由于参数全部是小写,且有下划线符号,需要重新转化,而不使用spring自带的model对象注入
      * 如果一个属性有多个值,则不会作为model属性去设置
+     * 只能用来查询等于这种情况下的
      */
     private void resetModelAttribute() {
         // 优化方法,从对象去查找
         Field[] keyFields = modelClass.getDeclaredFields();
 
         // 循环字段,根据参数设置,这里不涉及复杂查询(大于小于,以及数组等等),只简单设置对象
-        for(Field field: keyFields){
+        for (Field field : keyFields) {
             String fieldName = field.getName();
             // 转驼峰为下划线形式
             String fieldNameCamel = LOWER_CAMEL.to(LOWER_UNDERSCORE, fieldName);
-            if(this.originParams.containsKey(fieldNameCamel)){
+            if (this.originParams.containsKey(fieldNameCamel)) {
                 // 取出值,转换相应的类型,并设置对象
                 List<String[]> paramList = this.originParams.get(fieldNameCamel);
                 // 只有一个参数的时候才可以
 
-                if(paramList.size() == 1){
+                if (paramList.size() == 1) {
                     //LinkedList<String> paramLinkedList = (LinkedList<String>)paramList;
                     String paramValue = String.valueOf(paramList.get(0));
                     try {
                         field.setAccessible(true);
                         Object primitiveAttr = convertPrimitiveField(paramValue, field);
-                        if(primitiveAttr != null) {
+                        if (primitiveAttr != null) {
                             field.set(this.queryObject, primitiveAttr);
-                        }else{
+                        } else {
                             // 如果此时还是空,尝试转成对象,设置id
                             convertNotPrimitiveField(field, paramValue);
                         }
@@ -108,70 +172,69 @@ public class GenericQuerySet implements QuerySet{
         }
 
 
+        /**
+         // final Stream<Field> fieldStream = Arrays.stream(keyFields);
+
+         // String 类型字段
+         List<Field> stringFields = Arrays.stream(keyFields)
+         .filter(field -> String.class.isAssignableFrom(field.getType()))
+         .collect(Collectors.toList());
+
+         // Boolean 类型字段
+         List<Field> booleanFields = Arrays.stream(keyFields)
+         .filter(field -> Boolean.class.isAssignableFrom(field.getType()) | field.getType() == boolean.class)
+         .collect(Collectors.toList());
+
+         // Int 类型字段
+         List<Field> intFields = Arrays.stream(keyFields)
+         .filter(field -> Integer.class.isAssignableFrom(field.getType()) | field.getType() == int.class)
+         .collect(Collectors.toList());
+
+         // Long 类型字段
+         List<Field> longFields = Arrays.stream(keyFields)
+         .filter(field -> Long.class.isAssignableFrom(field.getType()) | field.getType() == long.class)
+         .collect(Collectors.toList());
+
+         // Float 类型字段
+         List<Field> floatFields = Arrays.stream(keyFields)
+         .filter(field -> Float.class.isAssignableFrom(field.getType()) | field.getType() == float.class)
+         .collect(Collectors.toList());
+
+         // Double类型字段
+         List<Field> doubleFields = Arrays.stream(keyFields)
+         .filter(field -> Double.class.isAssignableFrom(field.getType()) | field.getType() == double.class)
+         .collect(Collectors.toList());
+         */
+
 
         /**
-        // final Stream<Field> fieldStream = Arrays.stream(keyFields);
+         for (Map.Entry<String, List<String[]>> entry : this.originParams.entrySet()) {
+         String name = entry.getKey();
+         // 下划线转驼峰
+         String camelName = LOWER_UNDERSCORE.to(LOWER_CAMEL, name);
+         try {
+         Field keyField = modelClass.getDeclaredField(camelName);
+         keyField.setAccessible(true);
+         // 属性的类
+         Class<?> attr_class = keyField.getType();
+         // 强制类型转化
+         if (keyField.getType().equals(String.class)) {
+         String stringValue = String.valueOf(attr_class.cast(entry.getValue().get(0)));
+         keyField.set(queryObject, stringValue);
+         } else if (keyField.getType().equals(Integer.class)) {
+         Integer integerValue = Integer.valueOf(entry.getValue().get(0)[0]);
+         keyField.set(queryObject, integerValue);
+         } else {
+         Object attrTypeObj = attr_class.cast(entry.getValue().get(0));
+         keyField.set(queryObject, attrTypeObj);
+         }
 
-        // String 类型字段
-        List<Field> stringFields = Arrays.stream(keyFields)
-                .filter(field -> String.class.isAssignableFrom(field.getType()))
-                .collect(Collectors.toList());
-
-        // Boolean 类型字段
-        List<Field> booleanFields = Arrays.stream(keyFields)
-                .filter(field -> Boolean.class.isAssignableFrom(field.getType()) | field.getType() == boolean.class)
-                .collect(Collectors.toList());
-
-        // Int 类型字段
-        List<Field> intFields = Arrays.stream(keyFields)
-                .filter(field -> Integer.class.isAssignableFrom(field.getType()) | field.getType() == int.class)
-                .collect(Collectors.toList());
-
-        // Long 类型字段
-        List<Field> longFields = Arrays.stream(keyFields)
-                .filter(field -> Long.class.isAssignableFrom(field.getType()) | field.getType() == long.class)
-                .collect(Collectors.toList());
-
-        // Float 类型字段
-        List<Field> floatFields = Arrays.stream(keyFields)
-                .filter(field -> Float.class.isAssignableFrom(field.getType()) | field.getType() == float.class)
-                .collect(Collectors.toList());
-
-        // Double类型字段
-        List<Field> doubleFields = Arrays.stream(keyFields)
-                .filter(field -> Double.class.isAssignableFrom(field.getType()) | field.getType() == double.class)
-                .collect(Collectors.toList());
-        */
-
-
-        /**
-        for (Map.Entry<String, List<String[]>> entry : this.originParams.entrySet()) {
-            String name = entry.getKey();
-            // 下划线转驼峰
-            String camelName = LOWER_UNDERSCORE.to(LOWER_CAMEL, name);
-            try {
-                Field keyField = modelClass.getDeclaredField(camelName);
-                keyField.setAccessible(true);
-                // 属性的类
-                Class<?> attr_class = keyField.getType();
-                // 强制类型转化
-                if (keyField.getType().equals(String.class)) {
-                    String stringValue = String.valueOf(attr_class.cast(entry.getValue().get(0)));
-                    keyField.set(queryObject, stringValue);
-                } else if (keyField.getType().equals(Integer.class)) {
-                    Integer integerValue = Integer.valueOf(entry.getValue().get(0)[0]);
-                    keyField.set(queryObject, integerValue);
-                } else {
-                    Object attrTypeObj = attr_class.cast(entry.getValue().get(0));
-                    keyField.set(queryObject, attrTypeObj);
-                }
-
-            } catch (NoSuchFieldException e) {
-                e.printStackTrace();
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
-            }
-        }
+         } catch (NoSuchFieldException e) {
+         e.printStackTrace();
+         } catch (IllegalAccessException e) {
+         e.printStackTrace();
+         }
+         }
          */
     }
 
@@ -180,7 +243,7 @@ public class GenericQuerySet implements QuerySet{
         Object fieldObject = field.getType().newInstance();
         // 设置对象的id属性
         Field fieldClassIdField = field.getType().getDeclaredField("Id");
-        if(fieldClassIdField != null){
+        if (fieldClassIdField != null) {
             fieldClassIdField.setAccessible(true);
             fieldClassIdField.set(fieldObject, Integer.parseInt(paramValue));
             // 将这个非基本类型的对象设置给model的对象
@@ -191,26 +254,27 @@ public class GenericQuerySet implements QuerySet{
 
     /**
      * 参数转化,主要是对象用
+     *
      * @param paramValue
      * @param field
      * @return
      */
     private Object convertPrimitiveField(String paramValue, Field field) {
-        if(String.class.isAssignableFrom(field.getType())) {
+        if (String.class.isAssignableFrom(field.getType())) {
             return paramValue;
-        }else if(Integer.class.isAssignableFrom(field.getType()) || field.getType() == int.class){
+        } else if (Integer.class.isAssignableFrom(field.getType()) || field.getType() == int.class) {
             return Integer.parseInt(paramValue);
-        }else if(Long.class.isAssignableFrom(field.getType()) || field.getType() == long.class){
+        } else if (Long.class.isAssignableFrom(field.getType()) || field.getType() == long.class) {
             return Long.parseLong(paramValue);
-        }else if(Double.class.isAssignableFrom(field.getType()) || field.getType() == double.class){
+        } else if (Double.class.isAssignableFrom(field.getType()) || field.getType() == double.class) {
             return Double.parseDouble(paramValue);
-        }else if(Float.class.isAssignableFrom(field.getType()) || field.getType() == float.class){
+        } else if (Float.class.isAssignableFrom(field.getType()) || field.getType() == float.class) {
             return Float.parseFloat(paramValue);
-        }else if(Short.class.isAssignableFrom(field.getType()) || field.getType() == short.class) {
+        } else if (Short.class.isAssignableFrom(field.getType()) || field.getType() == short.class) {
             return Short.parseShort(paramValue);
-        }else if(Boolean.class.isAssignableFrom(field.getType()) || field.getType() == boolean.class) {
+        } else if (Boolean.class.isAssignableFrom(field.getType()) || field.getType() == boolean.class) {
             return Boolean.parseBoolean(paramValue);
-        }else if(LocalDateTime.class.isAssignableFrom(field.getType())) {
+        } else if (LocalDateTime.class.isAssignableFrom(field.getType())) {
             // 时间日期转化
             LocalDateTime ldt = new LocalDateTime(Long.parseLong(paramValue) * 1000);
             return ldt;
@@ -234,7 +298,12 @@ public class GenericQuerySet implements QuerySet{
 
     @Override
     public QueryParameter getQueryParameter(String paramName) {
-        return null;
+        return this.queryParamWithOp.get(paramName);
+    }
+
+    @Override
+    public HashMap<String, QueryParameter> getAllQueryParameter() {
+        return this.queryParamWithOp;
     }
 
     @Override
