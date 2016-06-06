@@ -30,6 +30,12 @@ dependencies {
     def slf4jVersion = "1.7.21"
     def logbackVersion = "1.1.7"
 
+    // Dates
+//    def jodatimeHibernateVersion = "1.4"
+//    def jodatimeJsptagsVersion = "1.1.1"
+    def jodatimeVersion = "2.9.3"
+//    def jadiraUsertypeCoreVersion = "5.0.0.GA"
+
     // unit test
     def junitVersion = "4.12"
     def hamcrestVersion = "1.3"
@@ -52,6 +58,12 @@ dependencies {
     //compile "org.slf4j:jcl-over-slf4j:$slf4jVersion"
     //compile "org.slf4j:slf4j-log4j12:$slf4jVersion"
     compile "ch.qos.logback:logback-classic:$logbackVersion"
+
+    // ====== Date and Time ======
+    compile "joda-time:joda-time:$jodatimeVersion"
+//    compile "joda-time:joda-time-hibernate:$jodatimeHibernateVersion"
+//    compile "joda-time:joda-time-jsptags:$jodatimeJsptagsVersion"
+//    compile "org.jadira.usertype:usertype.core:$jadiraUsertypeCoreVersion"
 
 
     // ----------------------------------------------------------------------------------------------------

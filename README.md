@@ -21,9 +21,9 @@ rest framework简称ssrf,目的用于对spring mvc框架下的restful api开发�
 
 使用一下类型
 
-String, int, Integer, Long, long, float, Float, double, Double,
+String, int, Integer, Long, long, float, Float, double, Double, LocalDateTime(Joda)
 
-尽量用int来表示boolean
+尽量用int来表示boolean, 用包装类型,不用基本类型
 
 参数传递
 

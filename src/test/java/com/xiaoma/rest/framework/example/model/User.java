@@ -1,6 +1,8 @@
 package com.xiaoma.rest.framework.example.model;
 
 import javafx.scene.input.RotateEvent;
+import org.joda.time.LocalDate;
+import org.joda.time.LocalDateTime;
 
 import java.util.Date;
 
@@ -28,9 +30,9 @@ public class User {
 
     private boolean isMale;
 
-    private Date createDate;
+    private LocalDateTime createDate;
 
-    private Date updateDate;
+    private LocalDateTime updateDate;
 
     private Role role;
 
@@ -98,27 +100,27 @@ public class User {
         isMale = male;
     }
 
-    public Date getCreateDate() {
-        return createDate;
-    }
-
-    public void setCreateDate(Date createDate) {
-        this.createDate = createDate;
-    }
-
-    public Date getUpdateDate() {
-        return updateDate;
-    }
-
-    public void setUpdateDate(Date updateDate) {
-        this.updateDate = updateDate;
-    }
-
     public Role getRole() {
         return role;
     }
 
     public void setRole(Role role) {
         this.role = role;
+    }
+
+    public LocalDateTime getUpdateDate() {
+        return updateDate;
+    }
+
+    public void setUpdateDate(LocalDateTime updateDate) {
+        this.updateDate = updateDate;
+    }
+
+    public LocalDateTime getCreateDate() {
+        return createDate;
+    }
+
+    public void setCreateDate(LocalDateTime createDate) {
+        this.createDate = createDate;
     }
 }

@@ -2,6 +2,8 @@ package com.xiaoma.rest.framework.query;
 
 import com.xiaoma.rest.framework.page.Pagination;
 import com.xiaoma.rest.framework.serializer.Serializer;
+import org.joda.time.LocalDate;
+import org.joda.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.MultiValueMap;
@@ -208,6 +210,10 @@ public class GenericQuerySet implements QuerySet{
             return Short.parseShort(paramValue);
         }else if(Boolean.class.isAssignableFrom(field.getType()) || field.getType() == boolean.class) {
             return Boolean.parseBoolean(paramValue);
+        }else if(LocalDateTime.class.isAssignableFrom(field.getType())) {
+            // 时间日期转化
+            LocalDateTime ldt = new LocalDateTime(Long.parseLong(paramValue) * 1000);
+            return ldt;
         }
         return null;
     }

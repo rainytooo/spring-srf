@@ -3,6 +3,7 @@ package com.xiaoma.rest.framework.query;
 
 import com.xiaoma.rest.framework.example.model.Role;
 import com.xiaoma.rest.framework.example.model.User;
+import org.joda.time.LocalDateTime;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -71,6 +72,12 @@ public class GenericQuerySetTest {
         distanceList.add(distanceValue);
         hmap.put("distance", distanceList);
 
+        // add createDate value
+        LinkedList<String> createDateList = new LinkedList<>();
+        String createDateValue = "1465180995";
+        createDateList.add(createDateValue);
+        hmap.put("create_date", createDateList);
+
 
         // add Role value
         LinkedList<String> roleList = new LinkedList<>();
@@ -90,6 +97,7 @@ public class GenericQuerySetTest {
         this.demoUser.setDescription(descValue);
         this.demoUser.setHeight(Float.parseFloat(heightValue));
         this.demoUser.setDistance(Long.parseLong(distanceValue));
+        this.demoUser.setCreateDate(new LocalDateTime(Long.parseLong(createDateValue) * 1000));
         this.demoUser.setMale(true);
         this.demoUser.setRole(role);
 
@@ -103,7 +111,7 @@ public class GenericQuerySetTest {
     }
 
     @Test
-    public void indexWithLogin() throws Exception {
+    public void resetModelAttribute() throws Exception {
         GenericQuerySet qs = new GenericQuerySet(this.demoParams, User.class);
         User queryObject = (User)qs.getModelObject();
         // assertTrue( this.demoUser.equals(qs.getModelObject()) );
@@ -115,6 +123,7 @@ public class GenericQuerySetTest {
         assertEquals(this.demoUser.getStatus(), queryObject.getStatus());
         assertEquals(this.demoUser.getHeight(), queryObject.getHeight(), 0.01);
         assertEquals(this.demoUser.isMale(), queryObject.isMale());
+        assertEquals(this.demoUser.getCreateDate(), queryObject.getCreateDate());
         assertEquals(this.demoUser.getRole().getId(), queryObject.getRole().getId());
     }
 }
