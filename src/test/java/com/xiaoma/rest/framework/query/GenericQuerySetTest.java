@@ -9,9 +9,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import static org.junit.Assert.*;
@@ -28,6 +30,8 @@ public class GenericQuerySetTest {
 
     @Before
     public void before() throws Exception {
+
+
         logger.debug("GenericQuerySetTest start");
         LinkedHashMap<String, LinkedList<String>> hmap = new LinkedHashMap<>();
         // add name value
@@ -112,7 +116,8 @@ public class GenericQuerySetTest {
 
     @Test
     public void resetModelAttribute() throws Exception {
-        GenericQuerySet qs = new GenericQuerySet(this.demoParams, User.class);
+        HttpServletRequest request = new MockHttpServletRequest();
+        GenericQuerySet qs = new GenericQuerySet(this.demoParams, User.class, request);
         User queryObject = (User)qs.getQueryModel();
         // assertTrue( this.demoUser.equals(qs.getModelObject()) );
         // assertEquals(this.demoUser, qs.getModelObject());
@@ -148,7 +153,10 @@ public class GenericQuerySetTest {
 
         // 查询参数
         MultiValueMap<String, String[]> params = new LinkedMultiValueMap(hmap);
-        GenericQuerySet qs = new GenericQuerySet(params, User.class);
+
+        HttpServletRequest request = new MockHttpServletRequest();
+
+        GenericQuerySet qs = new GenericQuerySet(params, User.class, request);
 
         QueryParameter qp = qs.getQueryParameter("name");
         assertEquals(qp.getOperation(), QueryOperation.STARTWITH);
@@ -179,10 +187,10 @@ public class GenericQuerySetTest {
         pageList.add(pageValue);
         hmap.put("page", pageList);
 
-
+        HttpServletRequest request = new MockHttpServletRequest();
         // 查询参数
         MultiValueMap<String, String[]> params = new LinkedMultiValueMap(hmap);
-        GenericQuerySet qs = new GenericQuerySet(params, User.class);
+        GenericQuerySet qs = new GenericQuerySet(params, User.class, request);
 
 
         logger.debug("pageSize test end");

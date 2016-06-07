@@ -4,7 +4,7 @@ version '1.0-SNAPSHOT'
 apply plugin: 'java'
 apply plugin: 'idea'
 apply plugin: 'maven'
-
+apply plugin: 'jetty'
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
@@ -21,6 +21,13 @@ repositories {
 dependencies {
     // spring
     def springVersion = "4.2.6.RELEASE"
+
+    // Java EE / Java SE dependencies
+    def jspVersion = "2.2"
+    //def tomcatServletVersion = "7.0.30"
+    def servletApiVersion = "3.1.0"
+    def jstlImplVersion = "1.2"
+    def jaxbImplVersion = "2.2.11"
 
     // common
     def googleGuavaVersion = '19.0'
@@ -48,6 +55,14 @@ dependencies {
 
     // ====== spring ======
     compile "org.springframework:spring-webmvc:$springVersion"
+
+    // ====== Java EE / Java SE dependencies ======
+    // compile "org.glassfish.web:jstl-impl:$jstlImplVersion"
+
+    providedCompile "javax.servlet.jsp:jsp-api:$jspVersion"
+    //providedCompile 'org.apache.tomcat:tomcat-servlet-api:$tomcatServletVersion'
+    providedCompile "javax.servlet:javax.servlet-api:$servletApiVersion"
+    providedCompile "com.sun.xml.bind:jaxb-impl:$jaxbImplVersion"
 
 
     // ====== common ======

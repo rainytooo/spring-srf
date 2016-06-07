@@ -1,6 +1,7 @@
 package com.xiaoma.rest.framework.query;
 
 import com.xiaoma.rest.framework.page.PaginationParameter;
+import com.xiaoma.rest.framework.page.Paginator;
 import com.xiaoma.rest.framework.serializer.Serializer;
 
 import java.util.HashMap;
@@ -51,5 +52,11 @@ public interface QuerySet {
      * @return
      */
     Serializer getSerializer();
+
+    /**
+     * 获取分页
+     * @return
+     */
+    Paginator getPaginator();
 
 }
