@@ -31,6 +31,8 @@ dependencies {
 
     // common
     def googleGuavaVersion = '19.0'
+    // httpclient
+    def apacheHttpClientVersion = '4.5.2'
 
     // logging
     //def log4jVersion = "1.2.16"
@@ -67,6 +69,8 @@ dependencies {
 
     // ====== common ======
     compile "com.google.guava:guava:$googleGuavaVersion"
+    // http://mvnrepository.com/artifact/org.apache.httpcomponents/httpclient
+    compile "org.apache.httpcomponents:httpclient:$apacheHttpClientVersion"
 
     // ====== logging ======
     compile "org.slf4j:slf4j-api:$slf4jVersion"

@@ -1,6 +1,9 @@
 package com.xiaoma.rest.framework.page;
 
 import com.xiaoma.rest.framework.exception.PaginatorNotInitializeException;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * 分页包装类
@@ -34,6 +37,29 @@ public class Paginator {
 
     // 下一页url
     private String nextUrl;
+
+    /**
+     * 初始化,设置好 current, pageSize, currentUrl
+     * @param request
+     */
+    public Paginator(HttpServletRequest request) {
+        this.pageSize = pageSize;
+        // page参数拿出来
+        String requestUrl = request.getRequestURI();
+        String queryUrl = request.getQueryString();
+        String page = request.getParameter("page");
+        this.setCurrentUrl(requestUrl + queryUrl);
+        ServletUriComponentsBuilder ucb = ServletUriComponentsBuilder.fromRequest(request);
+
+    }
+
+    /**
+     * 完成查询处理以后重新build分页对象
+     * @param totalCount
+     */
+    public void build(int totalCount){
+
+    }
 
 
     /**

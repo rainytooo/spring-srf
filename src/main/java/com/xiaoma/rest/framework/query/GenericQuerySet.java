@@ -59,7 +59,6 @@ public class GenericQuerySet implements QuerySet {
         this.originParams = originParams;
         this.modelClass = modelClass;
         this.paginationParameter = new PaginationParameter();
-        this.paginator = new Paginator();
         this.queryType = QueryType.LIST;
         this.request = request;
         this.initParams(request);
@@ -72,7 +71,6 @@ public class GenericQuerySet implements QuerySet {
         this.originParams = originParams;
         this.modelClass = modelClass;
         this.paginationParameter = paginationParameter;
-        this.paginator = new Paginator();
         this.queryType = QueryType.LIST;
         this.request = request;
         this.initParams(request);
@@ -86,7 +84,6 @@ public class GenericQuerySet implements QuerySet {
         this.originParams = originParams;
         this.modelClass = modelClass;
         this.paginationParameter = paginationParameter;
-        this.paginator = new Paginator();
         this.queryType = queryType;
         this.request = request;
         this.initParams(request);
@@ -120,12 +117,14 @@ public class GenericQuerySet implements QuerySet {
      * @param request
      */
     private void resetPaginator(HttpServletRequest request) {
+        this.paginator = new Paginator(request);
         // 拿出当前页参数 如果有直接设置,如果没有设置为1
         this.initPageParams(this.paginator);
 
         // 将原始的请求参数拿出来
         String requestUrl = request.getRequestURL().toString();
         String queryUrl = request.getQueryString();
+
         ServletUriComponentsBuilder ucb = ServletUriComponentsBuilder.fromRequest(request);
         // 设置现在的url
         this.paginator.setCurrentUrl(ucb.build().toUriString());
