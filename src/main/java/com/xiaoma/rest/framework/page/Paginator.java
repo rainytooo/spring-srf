@@ -1,7 +1,6 @@
 package com.xiaoma.rest.framework.page;
 
 import com.xiaoma.rest.framework.exception.PaginatorNotInitializeException;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -13,6 +12,9 @@ import javax.servlet.http.HttpServletRequest;
  * @since 1.0
  */
 public class Paginator {
+
+    //分页参数配置器
+    private PaginationParameter paginationParameter;
 
     // 总数
     private Integer total;
@@ -42,14 +44,46 @@ public class Paginator {
      * 初始化,设置好 current, pageSize, currentUrl
      * @param request
      */
-    public Paginator(HttpServletRequest request) {
-        this.pageSize = pageSize;
-        // page参数拿出来
-        String requestUrl = request.getRequestURI();
-        String queryUrl = request.getQueryString();
+    public Paginator(HttpServletRequest request, PaginationParameter paginationParameter) {
+        this.paginationParameter = paginationParameter;
+        // page和pageSize参数拿出来
+        this.initPage(request);
+        this.initPageSize(request);
         String page = request.getParameter("page");
-        this.setCurrentUrl(requestUrl + queryUrl);
-        ServletUriComponentsBuilder ucb = ServletUriComponentsBuilder.fromRequest(request);
+        String requestUrl = request.getRequestURL().toString();
+        String queryUri = request.getQueryString();
+
+        this.setCurrentUrl(requestUrl + "?" + queryUri);
+        // ServletUriComponentsBuilder ucb = ServletUriComponentsBuilder.fromRequest(request);
+
+    }
+
+    public void initPage(HttpServletRequest request){
+        String pageStr = request.getParameter(this.paginationParameter.getPageParamName());
+        if(pageStr != null){
+            this.current = Integer.parseInt(pageStr);
+        } else {
+            this.current = 1;
+        }
+
+    }
+
+    public void initPageSize(HttpServletRequest request){
+        String pageSizeStr = request.getParameter(this.paginationParameter.getPageSizeParamName());
+        if(pageSizeStr != null){
+            int pageSize = Integer.parseInt(pageSizeStr);
+            this.pageSize = pageSize > this.paginationParameter.getMaxPageSize() ? this.paginationParameter.getMaxPageSize() : pageSize;
+        } else {
+            this.pageSize = this.paginationParameter.getMaxPageSize();
+        }
+
+    }
+
+
+    /**
+     * 如果设置了totalCount,直接build next
+     */
+    public void build(){
 
     }
 
@@ -57,20 +91,18 @@ public class Paginator {
      * 完成查询处理以后重新build分页对象
      * @param totalCount
      */
-    public void build(int totalCount){
-
-    }
-
-
-    /**
-     * 计算所有分页的url
-     */
-    public void calculatePageUrl() throws PaginatorNotInitializeException {
+    public void build(int totalCount) throws PaginatorNotInitializeException {
         if(this.total == null || current == null || pageSize == null) {
             throw new PaginatorNotInitializeException();
         }
 
     }
+
+
+
+
+
+
 
     public Integer getTotal() {
         return total;

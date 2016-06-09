@@ -117,7 +117,7 @@ public class GenericQuerySet implements QuerySet {
      * @param request
      */
     private void resetPaginator(HttpServletRequest request) {
-        this.paginator = new Paginator(request);
+        this.paginator = new Paginator(request, this.paginationParameter);
         // 拿出当前页参数 如果有直接设置,如果没有设置为1
         this.initPageParams(this.paginator);
 
@@ -155,6 +155,7 @@ public class GenericQuerySet implements QuerySet {
      * 初始化分页的参数值
      */
     private void initPageParams(Paginator paginator) {
+        // 根据参数名称 获取分页大小参数,数字和默认最大值比较
         Object pageSizeParamObj = this.originParams.get(this.paginationParameter.getPageSizeParamName());
         if (pageSizeParamObj != null) {
             LinkedList<String> pageSizeValueList = (LinkedList<String>) pageSizeParamObj;

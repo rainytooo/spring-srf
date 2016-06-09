@@ -15,7 +15,7 @@
     </appender>
 
     <logger name="org.springframework" level="debug"/>
-    <logger name="com.xiaoma.universe" level="debug"/>
+    <logger name="com.xiaoma.rest" level="debug"/>
 
     <root level="info">
         <appender-ref ref="console"/>

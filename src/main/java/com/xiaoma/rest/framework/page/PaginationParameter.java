@@ -14,7 +14,7 @@ public class PaginationParameter {
 
     private final static String PAGE_PARAM_NAME = "page";
 
-    private final static int MAX_PAGE_SIZE = 1000;
+    private final static int MAX_PAGE_SIZE = 200;
 
     public int getPageSize(){
         return PAGE_SIZE;
