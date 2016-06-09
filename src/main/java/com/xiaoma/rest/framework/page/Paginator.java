@@ -1,8 +1,12 @@
 package com.xiaoma.rest.framework.page;
 
 import com.xiaoma.rest.framework.exception.PaginatorNotInitializeException;
+import com.xiaoma.rest.framework.exception.PaginatorllegalITotalCountException;
+import org.apache.http.client.utils.URIBuilder;
 
 import javax.servlet.http.HttpServletRequest;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 
 /**
  * 分页包装类
@@ -12,6 +16,9 @@ import javax.servlet.http.HttpServletRequest;
  * @since 1.0
  */
 public class Paginator {
+
+    // 请求
+    private HttpServletRequest request;
 
     //分页参数配置器
     private PaginationParameter paginationParameter;
@@ -23,7 +30,19 @@ public class Paginator {
     private Integer pageSize;
 
     // 当前页
-    private Integer current;
+    private Integer currentPage;
+
+    // 下一页
+    private Integer nextPage;
+
+    // 上一页
+    private Integer previousPage;
+
+    // 最后页
+    private Integer lastPage;
+
+    // 第一页
+    private Integer firstPage;
 
     // 总页数
     private Integer totalPage;
@@ -41,15 +60,15 @@ public class Paginator {
     private String nextUrl;
 
     /**
-     * 初始化,设置好 current, pageSize, currentUrl
+     * 初始化,设置好 currentPage, pageSize, currentUrl
      * @param request
      */
     public Paginator(HttpServletRequest request, PaginationParameter paginationParameter) {
+        this.request = request;
         this.paginationParameter = paginationParameter;
         // page和pageSize参数拿出来
         this.initPage(request);
         this.initPageSize(request);
-        String page = request.getParameter("page");
         String requestUrl = request.getRequestURL().toString();
         String queryUri = request.getQueryString();
 
@@ -61,9 +80,9 @@ public class Paginator {
     public void initPage(HttpServletRequest request){
         String pageStr = request.getParameter(this.paginationParameter.getPageParamName());
         if(pageStr != null){
-            this.current = Integer.parseInt(pageStr);
+            this.currentPage = Integer.parseInt(pageStr);
         } else {
-            this.current = 1;
+            this.currentPage = 1;
         }
 
     }
@@ -83,25 +102,76 @@ public class Paginator {
     /**
      * 如果设置了totalCount,直接build next
      */
-    public void build(){
+    public void build() throws PaginatorNotInitializeException, URISyntaxException, MalformedURLException {
+        if(this.total == null || currentPage == null || pageSize == null) {
+            throw new PaginatorNotInitializeException();
+        }
+        // 计算总页数
+        this.setTotalPage(this.total / this.pageSize + 1);
+        // 设置第一页
+        this.setFirstPage(1);
 
+        // 计算下一页 上一页
+        Integer nextPageNum = this.currentPage.equals(this.totalPage) ? null : this.currentPage + 1;
+        Integer previousPageNum = this.currentPage.equals(new Integer(1)) ? null : this.currentPage - 1;
+
+        String pageValue = this.request.getParameter(this.paginationParameter.getPageParamName());
+        this.buildNextPage(nextPageNum, pageValue);
+        this.buildPreviousPage(previousPageNum, pageValue);
+
+        // 设置上一页
+//        if(pageValue != null){
+//            urlb.setParameter(this.paginationParameter.getPageParamName(), String.valueOf(previousPageNum));
+//        } else {
+//            urlb.addParameter(this.paginationParameter.getPageParamName(), String.valueOf(previousPageNum));
+//        }
+//        this.setPreviousPage(previousPageNum);
+//        this.setPreviousUrl(urlb.build().toURL().toString());
+
+    }
+
+    private void buildNextPage(Integer nextPageNum, String pageValue) throws URISyntaxException, MalformedURLException {
+        // 构建一个url
+        URIBuilder urlb = new URIBuilder(this.getCurrentUrl());
+        if(nextPageNum != null) {
+            // 设置下一页
+            if (pageValue != null) {
+                urlb.setParameter(this.paginationParameter.getPageParamName(), String.valueOf(nextPageNum));
+            } else {
+                urlb.addParameter(this.paginationParameter.getPageParamName(), String.valueOf(nextPageNum));
+            }
+            this.setNextPage(nextPageNum);
+            this.setNextUrl(urlb.build().toURL().toString());
+        }
+    }
+
+    private void buildPreviousPage(Integer previousPageNum, String pageValue) throws URISyntaxException, MalformedURLException {
+        // 构建一个url
+        URIBuilder urlb = new URIBuilder(this.getCurrentUrl());
+        if(previousPageNum != null) {
+            // 设置下一页
+            if (pageValue != null) {
+                urlb.setParameter(this.paginationParameter.getPageParamName(), String.valueOf(previousPageNum));
+            } else {
+                urlb.addParameter(this.paginationParameter.getPageParamName(), String.valueOf(previousPageNum));
+            }
+            this.setPreviousPage(previousPageNum);
+            this.setPreviousUrl(urlb.build().toURL().toString());
+        }
     }
 
     /**
      * 完成查询处理以后重新build分页对象
+     * 包含下一页和上一页的url
      * @param totalCount
      */
-    public void build(int totalCount) throws PaginatorNotInitializeException {
-        if(this.total == null || current == null || pageSize == null) {
-            throw new PaginatorNotInitializeException();
+    public void build(int totalCount) throws PaginatorNotInitializeException, PaginatorllegalITotalCountException, URISyntaxException, MalformedURLException {
+        if (totalCount < 0) {
+            throw new PaginatorllegalITotalCountException();
         }
-
+        this.setTotal(totalCount);
+        this.build();
     }
-
-
-
-
-
 
 
     public Integer getTotal() {
@@ -120,12 +190,12 @@ public class Paginator {
         this.pageSize = pageSize;
     }
 
-    public Integer getCurrent() {
-        return current;
+    public Integer getCurrentPage() {
+        return currentPage;
     }
 
-    public void setCurrent(Integer current) {
-        this.current = current;
+    public void setCurrentPage(Integer currentPage) {
+        this.currentPage = currentPage;
     }
 
     public Integer getTotalPage() {
@@ -168,5 +238,43 @@ public class Paginator {
         this.nextUrl = nextUrl;
     }
 
+    public PaginationParameter getPaginationParameter() {
+        return paginationParameter;
+    }
 
+    public void setPaginationParameter(PaginationParameter paginationParameter) {
+        this.paginationParameter = paginationParameter;
+    }
+
+    public Integer getNextPage() {
+        return nextPage;
+    }
+
+    public void setNextPage(Integer nextPage) {
+        this.nextPage = nextPage;
+    }
+
+    public Integer getPreviousPage() {
+        return previousPage;
+    }
+
+    public void setPreviousPage(Integer previousPage) {
+        this.previousPage = previousPage;
+    }
+
+    public Integer getLastPage() {
+        return lastPage;
+    }
+
+    public void setLastPage(Integer lastPage) {
+        this.lastPage = lastPage;
+    }
+
+    public Integer getFirstPage() {
+        return firstPage;
+    }
+
+    public void setFirstPage(Integer firstPage) {
+        this.firstPage = firstPage;
+    }
 }

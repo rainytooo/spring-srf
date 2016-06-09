@@ -172,11 +172,11 @@ public class GenericQuerySet implements QuerySet {
         if (pageParamObj != null) {
             LinkedList<String> pageValueList = (LinkedList<String>) pageParamObj;
             int pageNum = Integer.parseInt(pageValueList.get(0));
-            paginator.setCurrent(pageNum);
+            paginator.setCurrentPage(pageNum);
             this.originParams.remove(this.paginationParameter.getPageParamName());
         } else {
             int pageNum = 1;
-            paginator.setCurrent(pageNum);
+            paginator.setCurrentPage(pageNum);
         }
     }
 
