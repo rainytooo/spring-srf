@@ -74,7 +74,7 @@ public class PaginatorTest {
     public void buildInit() throws PaginatorNotInitializeException, PaginatorllegalITotalCountException, MalformedURLException, URISyntaxException {
         HttpServletRequest nullMockRequest = new MockHttpServletRequest("get", "");
         Paginator paginator = new Paginator(nullMockRequest, this.paginationParameter);
-        paginator.build(200);
+        paginator.build();
     }
 
     /**

@@ -1,14 +1,17 @@
 group 'com.xiaoma'
 // version '1.0-SNAPSHOT'
-version '1.0.1a'
+version '1.0.1b'
 
 apply plugin: 'java'
 apply plugin: 'idea'
 apply plugin: 'maven'
-apply plugin: 'jetty'
+//apply plugin: 'jetty'
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
+
+
+
 
 repositories {
 //    mavenCentral()
@@ -18,6 +21,8 @@ repositories {
         url 'http://nexus.xiaoma.com/nexus/content/groups/public'
     }
 }
+
+configurations { providedCompile }
 
 dependencies {
     // spring
@@ -98,6 +103,19 @@ dependencies {
 
 }
 
+sourceSets.main.compileClasspath += configurations.providedCompile
+sourceSets.test.compileClasspath += configurations.providedCompile
+sourceSets.test.runtimeClasspath += configurations.providedCompile
+
+
+//task myJar(type: Jar){
+//    // archiveFile = file("${destinationDir}/${archiveName}")
+//}
+//
+//artifacts {
+//    archives file: myJar.destinationDir, name: 'jarfile', type: 'jar', builtBy: myJar
+//}
+
 
 //上传到nexus
 uploadArchives {
@@ -113,6 +131,13 @@ uploadArchives {
             pom.version = "$project.version"
             pom.artifactId = "$rootProject.name"
             pom.groupId = "$project.group"
+
+//            addFilter('jarfile') {artifact, file ->
+//                artifact.name == 'jarfile'
+//            }
+//            pom('jarfile').version = "$project.version"
+//            pom('jarfile').artifactId = "$rootProject.name"
+//            pom('jarfile').groupId = "$project.group"
         }
     }
 }
