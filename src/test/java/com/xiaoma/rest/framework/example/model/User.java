@@ -1,5 +1,9 @@
 package com.xiaoma.rest.framework.example.model;
 
+import javafx.scene.input.RotateEvent;
+import org.joda.time.LocalDate;
+import org.joda.time.LocalDateTime;
+
 import java.util.Date;
 
 /**
@@ -18,9 +22,19 @@ public class User {
 
     private Integer status;
 
-    private Date createDate;
+    private long distance;
 
-    private Date updateDate;
+    private float height;
+
+    private double deposits;
+
+    private boolean isMale;
+
+    private LocalDateTime createDate;
+
+    private LocalDateTime updateDate;
+
+    private Role role;
 
     public Integer getId() {
         return id;
@@ -54,19 +68,59 @@ public class User {
         this.status = status;
     }
 
-    public Date getCreateDate() {
-        return createDate;
+    public long getDistance() {
+        return distance;
     }
 
-    public void setCreateDate(Date createDate) {
-        this.createDate = createDate;
+    public void setDistance(long distance) {
+        this.distance = distance;
     }
 
-    public Date getUpdateDate() {
+    public float getHeight() {
+        return height;
+    }
+
+    public void setHeight(float height) {
+        this.height = height;
+    }
+
+    public double getDeposits() {
+        return deposits;
+    }
+
+    public void setDeposits(double deposits) {
+        this.deposits = deposits;
+    }
+
+    public boolean isMale() {
+        return isMale;
+    }
+
+    public void setMale(boolean male) {
+        isMale = male;
+    }
+
+    public Role getRole() {
+        return role;
+    }
+
+    public void setRole(Role role) {
+        this.role = role;
+    }
+
+    public LocalDateTime getUpdateDate() {
         return updateDate;
     }
 
-    public void setUpdateDate(Date updateDate) {
+    public void setUpdateDate(LocalDateTime updateDate) {
         this.updateDate = updateDate;
+    }
+
+    public LocalDateTime getCreateDate() {
+        return createDate;
+    }
+
+    public void setCreateDate(LocalDateTime createDate) {
+        this.createDate = createDate;
     }
 }

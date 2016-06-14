@@ -1,27 +1,49 @@
 group 'com.xiaoma'
-version '1.0'
+version '1.0-SNAPSHOT'
 
 apply plugin: 'java'
+apply plugin: 'idea'
+apply plugin: 'maven'
+apply plugin: 'jetty'
 
-
-sourceCompatibility = 1.7
-targetCompatibility = 1.7
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
 
 repositories {
-    mavenCentral()
+//    mavenCentral()
+    maven {
+        //url 'http://mirrors.ibiblio.org/pub/mirrors/maven2'
+        //url 'http://uk.maven.org/maven2'
+        url 'http://nexus.xiaoma.com/nexus/content/groups/public'
+    }
 }
 
 dependencies {
     // spring
     def springVersion = "4.2.6.RELEASE"
 
+    // Java EE / Java SE dependencies
+    def jspVersion = "2.2"
+    //def tomcatServletVersion = "7.0.30"
+    def servletApiVersion = "3.1.0"
+    def jstlImplVersion = "1.2"
+    def jaxbImplVersion = "2.2.11"
+
     // common
     def googleGuavaVersion = '19.0'
+    // httpclient
+    def apacheHttpClientVersion = '4.5.2'
 
     // logging
     //def log4jVersion = "1.2.16"
     def slf4jVersion = "1.7.21"
     def logbackVersion = "1.1.7"
+
+    // Dates
+//    def jodatimeHibernateVersion = "1.4"
+//    def jodatimeJsptagsVersion = "1.1.1"
+    def jodatimeVersion = "2.9.3"
+//    def jadiraUsertypeCoreVersion = "5.0.0.GA"
 
     // unit test
     def junitVersion = "4.12"
@@ -36,15 +58,31 @@ dependencies {
     // ====== spring ======
     compile "org.springframework:spring-webmvc:$springVersion"
 
+    // ====== Java EE / Java SE dependencies ======
+    // compile "org.glassfish.web:jstl-impl:$jstlImplVersion"
+
+    providedCompile "javax.servlet.jsp:jsp-api:$jspVersion"
+    //providedCompile 'org.apache.tomcat:tomcat-servlet-api:$tomcatServletVersion'
+    providedCompile "javax.servlet:javax.servlet-api:$servletApiVersion"
+    providedCompile "com.sun.xml.bind:jaxb-impl:$jaxbImplVersion"
+
 
     // ====== common ======
     compile "com.google.guava:guava:$googleGuavaVersion"
+    // http://mvnrepository.com/artifact/org.apache.httpcomponents/httpclient
+    compile "org.apache.httpcomponents:httpclient:$apacheHttpClientVersion"
 
     // ====== logging ======
     compile "org.slf4j:slf4j-api:$slf4jVersion"
     //compile "org.slf4j:jcl-over-slf4j:$slf4jVersion"
     //compile "org.slf4j:slf4j-log4j12:$slf4jVersion"
     compile "ch.qos.logback:logback-classic:$logbackVersion"
+
+    // ====== Date and Time ======
+    compile "joda-time:joda-time:$jodatimeVersion"
+//    compile "joda-time:joda-time-hibernate:$jodatimeHibernateVersion"
+//    compile "joda-time:joda-time-jsptags:$jodatimeJsptagsVersion"
+//    compile "org.jadira.usertype:usertype.core:$jadiraUsertypeCoreVersion"
 
 
     // ----------------------------------------------------------------------------------------------------
@@ -57,4 +95,23 @@ dependencies {
                 "org.mockito:mockito-core:$mockitoVersion"
 
 
+}
+
+
+//上传到nexus
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            snapshotRepository(url: 'http://nexus.xiaoma.com/nexus/content/repositories/snapshots/') {
+                authentication(userName: 'deployment', password: '1q2w3e4r')
+            }
+
+            repository(url: "http://nexus.xiaoma.com/nexus/content/repositories/releases") {
+                authentication(userName: "deployment", password: "1q2w3e4r")
+            }
+            pom.version = "$project.version"
+            pom.artifactId = "$rootProject.name"
+            pom.groupId = "$project.group"
+        }
+    }
 }
