@@ -15,8 +15,6 @@ public class BaseRestController {
     // 定义分页配置参数类
     private Class<? extends PaginationParameter> paginationParameterClass = PaginationParameter.class;
 
-    public BaseRestController() {
-    }
+    private Class<?> modelClass = Object.class;
 
-    
 }
