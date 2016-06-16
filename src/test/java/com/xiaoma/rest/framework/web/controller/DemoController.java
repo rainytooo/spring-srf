@@ -8,14 +8,10 @@ import com.xiaoma.rest.framework.page.PaginationParameter;
 import com.xiaoma.rest.framework.query.GenericQuerySet;
 import com.xiaoma.rest.framework.query.QueryType;
 import org.springframework.stereotype.Controller;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
