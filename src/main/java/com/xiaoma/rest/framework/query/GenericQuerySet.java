@@ -33,7 +33,7 @@ public class GenericQuerySet implements QuerySet {
     private QueryType queryType;
 
     // 原始参数对象
-    private final MultiValueMap<String, String[]> originParams;
+    private MultiValueMap<String, String[]> originParams;
 
     private HttpServletRequest request;
 
@@ -52,6 +52,9 @@ public class GenericQuerySet implements QuerySet {
     // 所有查询参数经过处理放在这里
     private HashMap<String, QueryParameter> queryParamWithOp;
 
+    public GenericQuerySet() {
+        this.originParams = null;
+    }
 
     public GenericQuerySet(MultiValueMap<String, String[]> originParams,
                            Class modelClass,

@@ -1,9 +1,14 @@
 package com.xiaoma.rest.framework.spring;
 
+import com.google.common.collect.Lists;
+import com.sun.tools.javac.jvm.Gen;
+import com.xiaoma.rest.framework.annotation.RestQuery;
 import com.xiaoma.rest.framework.annotation.RestQuerySet;
 import com.xiaoma.rest.framework.controller.BaseRestController;
 import com.xiaoma.rest.framework.page.PaginationParameter;
+import com.xiaoma.rest.framework.query.GenericQuerySet;
 import com.xiaoma.rest.framework.query.QuerySet;
+import com.xiaoma.rest.framework.query.QueryType;
 import org.springframework.core.MethodParameter;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -14,7 +19,9 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 
 import javax.servlet.http.HttpServletRequest;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -26,7 +33,7 @@ public class RestQuerySetHandlerMethodArgumentResolver implements HandlerMethodA
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
         Class<?> klass = parameter.getParameterType();
-        if (klass.isAssignableFrom(QuerySet.class)) {
+        if (QuerySet.class.isAssignableFrom(klass)) {
             Annotation[] as = parameter.getParameterAnnotations();
             for (Annotation a : as) {
                 if (a.annotationType() == RestQuerySet.class) {
@@ -64,38 +71,53 @@ public class RestQuerySetHandlerMethodArgumentResolver implements HandlerMethodA
             }
         }
 
+        // 获取rest的annotation
+        QueryType queryType;
+        RestQuery rqAnnotation = methodParameter.getMethod().getAnnotation(RestQuery.class);
+        QueryType[] queryTypes = rqAnnotation.type();
+        if(queryTypes.length > 0){
+            queryType = queryTypes[0];
+        } else {
+            queryType = QueryType.LIST;
+        }
 
         // 先获取到QuerySet的类
-        Class<?> restControllerClass = methodParameter.getContainingClass();
+        Class<?> restControllerClass = methodParameter.getDeclaringClass(); // methodParameter.getContainingClass();
         if (BaseRestController.class.isAssignableFrom(restControllerClass)) {
             // 拿出QuerySet的类对象
-            Field querySetField = restControllerClass.getDeclaredField("querySetClass");
             Class<? extends QuerySet> querySetClass =
-                    (Class<? extends QuerySet>) querySetField.getDeclaringClass();
-            // 从类里面拿出分页器
-            Field pageParamField = restControllerClass.getDeclaredField("paginationParameterClass");
-            Class<? extends PaginationParameter> pageParamClass =
-                    (Class<? extends PaginationParameter>) pageParamField.getDeclaringClass();
+                    (Class<? extends QuerySet>) methodParameter.getParameterType();
             // 拿出model Class
+            List<Field> currentClassFields = Lists.newArrayList(restControllerClass.getDeclaredFields());
             Field modelClassField = restControllerClass.getDeclaredField("modelClass");
-            Class<?> modelClass = modelClassField.getDeclaringClass();
+            modelClassField.setAccessible(true);
+            Class<?> modelClass = (Class<?>) modelClassField.get(null);
+            // 从类里面拿出分页器 调用方法获取
+            Field pageParamField = restControllerClass.getDeclaredField("paginationParameterClass");
+            pageParamField.setAccessible(true);
+            Class<? extends PaginationParameter> pageParamClass =
+                    (Class<? extends PaginationParameter>) pageParamField.get(null);
+
             // 实例化一个分页器
             HttpServletRequest request = (HttpServletRequest) nativeWebRequest.getNativeRequest();
-            QuerySet querySet = querySetClass.getConstructor(
+            Constructor<? extends QuerySet> querySetConstructor = querySetClass.getConstructor(
                     MultiValueMap.class,
                     Class.class,
                     PaginationParameter.class,
-                    HttpServletRequest.class).newInstance(listMap, modelClass, pageParamField, request);
+                    QueryType.class,
+                    HttpServletRequest.class);
+
+            QuerySet querySet =
+                    querySetConstructor.newInstance(
+                            listMap,
+                            modelClass,
+                            pageParamClass.newInstance(),
+                            queryType,
+                            request);
             return querySet;
-            //nativeWebRequest.getParameterMap()
 
         }
 
-
         return null;
-    }
-
-    private boolean isNotSet(String value) {
-        return value == null;
     }
 }
